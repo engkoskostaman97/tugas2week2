@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	filmdto "dumbflix/dto/film"
 	dto "dumbflix/dto/result"
+	transactiondto "dumbflix/dto/transaction"
 
 	"dumbflix/models"
 	"dumbflix/repositories"
@@ -14,35 +14,34 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type handlerFilm struct {
-	FilmRepository repositories.FilmRepository
+type handlerTransaction struct {
+	TransactionRepository repositories.TransactionRepository
 }
 
-func HandlerFilm(FilmRepository repositories.FilmRepository) *handlerFilm {
-	return &handlerFilm{FilmRepository}
+func HandlerTransaction(TransactionRepository repositories.TransactionRepository) *handlerTransaction {
+	return &handlerTransaction{TransactionRepository}
 }
 
-func (h *handlerFilm) FindFilms(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) FindTransacations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	films, err := h.FilmRepository.FindFilms()
+	transactions, err := h.TransactionRepository.FindTransactions()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(err.Error())
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: films}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: transactions}
 	json.NewEncoder(w).Encode(response)
 }
-
-func (h *handlerFilm) GetFilm(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) GetTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
-	var film models.Film
-	film, err := h.FilmRepository.GetFilm(id)
+	var transaction models.Transaction
+	transaction, err := h.TransactionRepository.GetTransaction(id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -51,13 +50,13 @@ func (h *handlerFilm) GetFilm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseFilm(film)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseTransaction(transaction)}
 	json.NewEncoder(w).Encode(response)
 }
-func (h *handlerFilm) CreateFilm(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(filmdto.FilmRequest)
+	request := new(transactiondto.TransactionRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -74,13 +73,12 @@ func (h *handlerFilm) CreateFilm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	film := models.Film{
-		Title:         request.Title,
-		Thumbnailfilm: request.Thumbnailfilm,
-		Year:          request.Year,
-		Description:   request.Description,
+	transaction := models.Transaction{
+
+		Stardate: request.Stardate,
+		Duedate:  request.Duedate,
 	}
-	data, err := h.FilmRepository.CreateFilm(film)
+	data, err := h.TransactionRepository.CreateTransaction(transaction)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
@@ -88,13 +86,13 @@ func (h *handlerFilm) CreateFilm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseFilm(data)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseTransaction(data)}
 	json.NewEncoder(w).Encode(response)
 }
-func (h *handlerFilm) UpdateFilm(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	request := new(filmdto.FilmRequest)
+	request := new(transactiondto.TransactionRequest)
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -103,7 +101,7 @@ func (h *handlerFilm) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-	film, err := h.FilmRepository.GetFilm(int(id))
+	transaction, err := h.TransactionRepository.GetTransaction(int(id))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -111,20 +109,11 @@ func (h *handlerFilm) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if request.Title != "" {
-		film.Title = request.Title
-	}
-	if request.Thumbnailfilm != "" {
-		film.Thumbnailfilm = request.Thumbnailfilm
-	}
-	if request.Year != "" {
-		film.Year = request.Year
-	}
-	if request.Description != "" {
-		film.Description = request.Description
+	if request.Status != "" {
+		transaction.Status = request.Status
 	}
 
-	data, err := h.FilmRepository.UpdateFilm(film)
+	data, err := h.TransactionRepository.UpdateTransaction(transaction)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
@@ -133,14 +122,14 @@ func (h *handlerFilm) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseFilm(data)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseTransaction(data)}
 	json.NewEncoder(w).Encode(response)
 }
-func (h *handlerFilm) DeleteFilm(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-	film, err := h.FilmRepository.GetFilm(id)
+	transaction, err := h.TransactionRepository.GetTransaction(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -148,7 +137,7 @@ func (h *handlerFilm) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := h.FilmRepository.DeleteFilm(film)
+	data, err := h.TransactionRepository.DeleteTransaction(transaction)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
@@ -157,16 +146,16 @@ func (h *handlerFilm) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseFilm(data)}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseTransaction(data)}
 	json.NewEncoder(w).Encode(response)
 }
 
-func convertResponseFilm(u models.Film) filmdto.FilmResponse {
-	return filmdto.FilmResponse{
-		ID:            u.ID,
-		Title:         u.Title,
-		Thumbnailfilm: u.Thumbnailfilm,
-		Year:          u.Year,
-		Description:   u.Description,
+func convertResponseTransaction(u models.Transaction) transactiondto.TransactionResponse {
+	return transactiondto.TransactionResponse{
+		ID:       u.ID,
+		Stardate: u.Stardate,
+		Duedate:  u.Duedate,
+		Attache:   u.Attache,
+		Status:   u.Status,
 	}
 }
