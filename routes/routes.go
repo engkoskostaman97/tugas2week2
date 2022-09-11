@@ -8,6 +8,6 @@ func RouteInit(r *mux.Router) {
 
 	UserRoutes(r)
 	FilmRoutes(r)
-
+	AuthRoutes(r)
 
 }
