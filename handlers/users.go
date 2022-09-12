@@ -120,7 +120,6 @@ func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.Fullname = request.Fullname
 	}
 
-
 	if request.Email != "" {
 		user.Email = request.Email
 	}

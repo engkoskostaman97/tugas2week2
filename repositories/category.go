@@ -9,9 +9,9 @@ import (
 type CategoryRepository interface {
 	FindCategorys() ([]models.Category, error)
 	GetCategory(ID int) (models.Category, error)
-	CreateCategory(film models.Category) (models.Category, error)
-	UpdateFi(film models.Category) (models.Category, error)
-	DeleteFilm(film models.Category) (models.Category, error)
+	CreateCategory(category models.Category) (models.Category, error)
+	UpdateCategory(category models.Category) (models.Category, error)
+	DeleteCategory(category models.Category) (models.Category, error)
 }
 
 func RepositoryCategory(db *gorm.DB) *repository {
@@ -19,33 +19,34 @@ func RepositoryCategory(db *gorm.DB) *repository {
 }
 
 func (r *repository) FindCategorys() ([]models.Category, error) {
-	var films []models.Category
-	err := r.db.Find(&films).Error // add this code
+	var categorys []models.Category
+	err := r.db.Preload("Film").Find(&categorys).Error // add this code
 
-	return films, err
+	return categorys, err
 }
 
 func (r *repository) GetCategory(ID int) (models.Category, error) {
-	var film models.Category
-	err := r.db.First(&film, ID).Error // add this code
+	var category models.Category
+	err := r.db.Preload("Film").First(&category, ID).Error
 
-	return film, err
-}
-func (r *repository) CreateCategory(film models.Category) (models.Category, error) {
-	err := r.db.Create(&film).Error
-
-	return film, err
+	return category, err
 }
 
-func (r *repository) UpdateCategory(film models.Category) (models.Category, error) {
-	err := r.db.Save(&film).Error
+func (r *repository) CreateCategory(category models.Category) (models.Category, error) {
+	err := r.db.Preload("Film").Create(&category).Error
 
-	return film, err
+	return category, err
 }
 
-func (r *repository) DeleteCategory(film models.Category) (models.Category, error) {
+func (r *repository) UpdateCategory(category models.Category) (models.Category, error) {
+	err := r.db.Save(&category).Error
 
-	err := r.db.Delete(&film).Error
+	return category, err
+}
 
-	return film, err
+func (r *repository) DeleteCategory(category models.Category) (models.Category, error) {
+
+	err := r.db.Delete(&category).Error
+
+	return category, err
 }

@@ -26,6 +26,25 @@ func (h *handlerFilm) FindFilms(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	films, err := h.FilmRepository.FindFilms()
+
+	// var result []models.Film
+
+	// for _, film := range films {
+	// 	category, _ := h.FilmRepository.GetFilmCategory(film.ID)
+	// 	result = append(result, models.Film{
+	// 		ID:            film.ID,
+	// 		Title:         film.Title,
+	// 		Thumbnailfilm: film.Title,
+	// 		Year:          film.Year,
+	// 		Category: models.CategoryResponse{
+	// 			ID:   category.ID,
+	// 			Name: category.Name,
+	// 		},
+	// 		CategoryID:  film.CategoryID,
+	// 		Description: film.Description,
+	// 	})
+	// }
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(err.Error())

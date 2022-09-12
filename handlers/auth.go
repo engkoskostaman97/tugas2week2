@@ -54,7 +54,6 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := models.User{
-
 		Fullname: request.Fullname,
 		Email:    request.Email,
 		Password: password,

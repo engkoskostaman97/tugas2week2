@@ -11,3 +11,12 @@ type User struct {
 	Address   string `json:"address" gorm:"type: text"`
 	Subscribe string `json:"subscribe" gorm:"type:text"`
 }
+type UsersProfileResponse struct {
+	ID       int    `json:"id"`
+	Fullname string `json:"fullname"`
+	Email    string `json:"email"`
+}
+
+func (UsersProfileResponse) TableName() string {
+	return "users"
+}

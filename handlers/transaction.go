@@ -22,7 +22,7 @@ func HandlerTransaction(TransactionRepository repositories.TransactionRepository
 	return &handlerTransaction{TransactionRepository}
 }
 
-func (h *handlerTransaction) FindTransacations(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) FindTransactions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	transactions, err := h.TransactionRepository.FindTransactions()
@@ -125,7 +125,7 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 	response := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseTransaction(data)}
 	json.NewEncoder(w).Encode(response)
 }
-func (h *handlerTransaction) DeleteFilm(w http.ResponseWriter, r *http.Request) {
+func (h *handlerTransaction) DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])

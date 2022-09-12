@@ -14,7 +14,7 @@ type TransactionRepository interface {
 	DeleteTransaction(Transaction models.Transaction) (models.Transaction, error)
 }
 
-func RepositTransaction(db *gorm.DB) *repository {
+func RepositoryTransaction(db *gorm.DB) *repository {
 	return &repository{db}
 }
 func (r *repository) FindTransactions() ([]models.Transaction, error) {
